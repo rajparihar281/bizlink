@@ -3,7 +3,8 @@ import '../../theme/colors.dart';
 import '../../theme/typography.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/primary_button.dart';
-
+import '../../services/api/api_service.dart'; 
+import '../../utils/error_handler.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,19 +19,27 @@ class _LoginScreenState extends State<LoginScreen> {
   // State variables
   bool _isLoading = false;
   final bool _obscurePassword = true;
-
+  final ApiService _apiService = ApiService();
   void _handleLogin() async {
-    // 1. Validate inputs
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // 2. Simulate API call (Day 1-2 requirement)
-      await Future.delayed(const Duration(seconds: 2));
+      try {
+        // Real API Call
+        // Note: You need to get text from controllers, assuming you add TextEditingControllers
+        // For this example, I'll use hardcoded or values you'd extract from controllers
+        bool success = await _apiService.login(
+          "test@gmail.com", // Replace with _emailController.text
+          "12345678", // Replace with _passwordController.text
+        );
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // 3. Navigate to Home on success
-        Navigator.pushReplacementNamed(context, '/home');
+        if (success && mounted) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } catch (e) {
+        if (mounted) ErrorHandler.showError(context, e.toString());
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
